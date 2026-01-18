@@ -12,7 +12,6 @@ import static jm.task.core.jdbc.util.Util.getSessionFactory;
 
 public class UserDaoHibernateImpl implements UserDao {
 
-    Session session = Util.getSessionFactory().openSession();
 
     public UserDaoHibernateImpl() {
     }
@@ -72,7 +71,6 @@ public class UserDaoHibernateImpl implements UserDao {
         if (user != null) {
             session.delete(user);
         }
-        session.delete(user);
 
         tx.commit();
         session.close();
