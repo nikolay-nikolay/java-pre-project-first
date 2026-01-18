@@ -17,7 +17,6 @@ public class UserDaoHibernateImpl implements UserDao {
     }
 
 
-
     @Override
     public void createUsersTable() {
         String sql = """
@@ -40,58 +39,63 @@ public class UserDaoHibernateImpl implements UserDao {
     public void dropUsersTable() {
         String sql = "DROP TABLE IF EXISTS users";
 
-        Session session = getSessionFactory().openSession();
-        Transaction tx = session.beginTransaction();
-        session.createNativeQuery(sql).executeUpdate();
-        tx.commit();
-        session.close();
+        try (Session session = getSessionFactory().openSession();) {
+            Transaction tx = session.beginTransaction();
+            session.createNativeQuery(sql).executeUpdate();
+            tx.commit();
+        }
+
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
 
+        try (Session session = getSessionFactory().openSession();) {
+            Transaction tx = session.beginTransaction();
 
-        Session session = getSessionFactory().openSession();
-        Transaction tx = session.beginTransaction();
+            User user = new User(name, lastName, age);
+            session.save(user);
 
-        User user = new User(name, lastName, age);
-        session.save(user);
-
-        tx.commit();
-        session.close();
+            tx.commit();
+        }
 
     }
 
     @Override
     public void removeUserById(long id) {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = session.beginTransaction();
 
-        User user = session.get(User.class, id);
-        if (user != null) {
-            session.delete(user);
+        try (Session session = getSessionFactory().openSession();) {
+            Transaction tx = session.beginTransaction();
+            User user = session.get(User.class, id);
+            if (user != null) {
+                session.delete(user);
+            }
+
+            tx.commit();
         }
 
-        tx.commit();
-        session.close();
     }
 
     @Override
     public List<User> getAllUsers() {
-        Session session = getSessionFactory().openSession();
-        List<User> users = session.createQuery("FROM User", User.class).getResultList();
-        session.close();
-        return users;
+
+
+        try (Session session = getSessionFactory().openSession();) {
+            List<User> users = session.createQuery("FROM User", User.class).getResultList();
+            return users;
+        }
+
     }
 
     @Override
     public void cleanUsersTable() {
-        Session session = getSessionFactory().openSession();
-        Transaction tx = session.beginTransaction();
 
-        session.createNativeQuery("TRUNCATE TABLE users").executeUpdate();
+        try (Session session = getSessionFactory().openSession();) {
+            Transaction tx = session.beginTransaction();
+            session.createNativeQuery("TRUNCATE TABLE users").executeUpdate();
 
-        tx.commit();
-        session.close();
+            tx.commit();
+        }
+
     }
 }
